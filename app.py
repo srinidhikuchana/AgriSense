@@ -54,6 +54,127 @@ CROPS = [
     "Soybean", "Chilli", "Tomato", "Pulses", "Other",
 ]
 
+LANGUAGES = {
+    "English": "en",
+    "Hindi / हिंदी": "hi",
+    "Telugu / తెలుగు": "te",
+}
+
+
+UI_TEXT = {
+    "en": {
+        "caption": "AI-Powered Crop and Weather Advisory for Smallholder Farmers. Combines live weather, "
+                   "satellite crop health data, and an AI advisory engine to help a farmer decide "
+                   "what action to take on a specific field, today.",
+        "field_details": "Field Details",
+        "language_label": "Language",
+        "place_label": "Village or town name",
+        "place_placeholder": "e.g. Warangal, Telangana",
+        "crop_label": "Crop",
+        "sowing_label": "Sowing date",
+        "size_label": "Field size (acres)",
+        "button": "Get Recommendation",
+        "locating": "Locating field...",
+        "located": "Field located near {name} ({lat:.4f}, {lon:.4f})",
+        "location_error": "Enter a village or town name to continue.",
+        "location_not_found": "Location not found. Try a nearby larger town instead.",
+        "keys_error": "Cannot proceed until all API keys above are configured.",
+        "weather_header": "Weather Today and Next Few Days",
+        "temp_label": "Temperature",
+        "feels_like": "feels like {v} C",
+        "humidity_label": "Humidity (how wet the air is)",
+        "wind_label": "Wind Speed",
+        "condition_label": "Sky condition",
+        "rain_last_hour": "Rain in the last hour",
+        "rain_next48": "Rain expected in the next 48 hours",
+        "forecast_expander": "See hour-by-hour forecast",
+        "satellite_header": "Crop Health From Satellite (NDVI)",
+        "ndvi_label": "Greenness Score (NDVI)",
+        "ndvi_status": "In simple terms",
+        "ndvi_history_expander": "See greenness score over the last month",
+        "no_satellite": "The satellite could not get a clear picture of this field in the last 30 days because "
+                         "of clouds. Try again in a few days.",
+        "ai_header": "What You Should Do",
+        "waiting": "Enter field details above and select Get Recommendation to generate an advisory.",
+        "generating": "Preparing your advisory...",
+    },
+    "hi": {
+        "caption": "छोटे किसानों के लिए एआई आधारित फसल और मौसम सलाह। मौसम, सैटेलाइट से फसल की सेहत, और एआई सलाह "
+                   "को मिलाकर बताता है कि आज खेत में क्या करना चाहिए।",
+        "field_details": "खेत की जानकारी",
+        "language_label": "भाषा",
+        "place_label": "गांव या शहर का नाम",
+        "place_placeholder": "जैसे वारंगल, तेलंगाना",
+        "crop_label": "फसल",
+        "sowing_label": "बुवाई की तारीख",
+        "size_label": "खेत का आकार (एकड़)",
+        "button": "सलाह पाएं",
+        "locating": "खेत की जगह ढूंढी जा रही है...",
+        "located": "खेत {name} के पास मिला ({lat:.4f}, {lon:.4f})",
+        "location_error": "आगे बढ़ने के लिए गांव या शहर का नाम लिखें।",
+        "location_not_found": "जगह नहीं मिली। पास के किसी बड़े शहर का नाम आज़माएं।",
+        "keys_error": "जब तक ऊपर दी गई सभी API कुंजियां सेट नहीं होतीं, यह आगे नहीं बढ़ सकता।",
+        "weather_header": "आज और अगले कुछ दिनों का मौसम",
+        "temp_label": "तापमान",
+        "feels_like": "महसूस होता है {v} C जैसा",
+        "humidity_label": "नमी (हवा में कितनी नमी है)",
+        "wind_label": "हवा की गति",
+        "condition_label": "आसमान की स्थिति",
+        "rain_last_hour": "पिछले एक घंटे में बारिश",
+        "rain_next48": "अगले 48 घंटों में बारिश की संभावना",
+        "forecast_expander": "घंटे-दर-घंटे मौसम देखें",
+        "satellite_header": "सैटेलाइट से फसल की सेहत (NDVI)",
+        "ndvi_label": "हरियाली स्कोर (NDVI)",
+        "ndvi_status": "सरल शब्दों में",
+        "ndvi_history_expander": "पिछले महीने का हरियाली स्कोर देखें",
+        "no_satellite": "बादलों की वजह से पिछले 30 दिनों में इस खेत की साफ सैटेलाइट तस्वीर नहीं मिली। कुछ दिनों बाद फिर कोशिश करें।",
+        "ai_header": "आपको क्या करना चाहिए",
+        "waiting": "ऊपर खेत की जानकारी भरें और सलाह पाएं बटन दबाएं।",
+        "generating": "आपकी सलाह तैयार की जा रही है...",
+    },
+    "te": {
+        "caption": "చిన్న రైతుల కోసం AI ఆధారిత పంట మరియు వాతావరణ సలహా. వాతావరణం, ఉపగ్రహం ద్వారా పంట ఆరోగ్యం, మరియు AI "
+                   "సలహాను కలిపి ఈరోజు పొలంలో ఏమి చేయాలో తెలియజేస్తుంది.",
+        "field_details": "పొలం వివరాలు",
+        "language_label": "భాష",
+        "place_label": "గ్రామం లేదా పట్టణం పేరు",
+        "place_placeholder": "ఉదా. వరంగల్, తెలంగాణ",
+        "crop_label": "పంట",
+        "sowing_label": "విత్తిన తేదీ",
+        "size_label": "పొలం విస్తీర్ణం (ఎకరాలు)",
+        "button": "సలహా పొందండి",
+        "locating": "పొలం స్థానం వెతుకుతోంది...",
+        "located": "పొలం {name} దగ్గర కనుగొనబడింది ({lat:.4f}, {lon:.4f})",
+        "location_error": "కొనసాగించడానికి గ్రామం లేదా పట్టణం పేరు నమోదు చేయండి.",
+        "location_not_found": "స్థానం కనుగొనబడలేదు. దగ్గరలోని పెద్ద పట్టణం పేరు ప్రయత్నించండి.",
+        "keys_error": "పైన ఉన్న అన్ని API కీలు సెట్ చేసే వరకు ఇది కొనసాగదు.",
+        "weather_header": "ఈరోజు మరియు రాబోయే కొద్ది రోజుల వాతావరణం",
+        "temp_label": "ఉష్ణోగ్రత",
+        "feels_like": "{v} C లా అనిపిస్తుంది",
+        "humidity_label": "తేమ (గాలిలో ఎంత తేమ ఉంది)",
+        "wind_label": "గాలి వేగం",
+        "condition_label": "ఆకాశ పరిస్థితి",
+        "rain_last_hour": "గత గంటలో వర్షం",
+        "rain_next48": "వచ్చే 48 గంటల్లో వర్షం అవకాశం",
+        "forecast_expander": "గంట గంటకు వాతావరణం చూడండి",
+        "satellite_header": "ఉపగ్రహం ద్వారా పంట ఆరోగ్యం (NDVI)",
+        "ndvi_label": "పచ్చదనం స్కోరు (NDVI)",
+        "ndvi_status": "సరళంగా చెప్పాలంటే",
+        "ndvi_history_expander": "గత నెల పచ్చదనం స్కోరు చూడండి",
+        "no_satellite": "మేఘాల వల్ల గత 30 రోజుల్లో ఈ పొలం యొక్క స్పష్టమైన ఉపగ్రహ చిత్రం దొరకలేదు. కొన్ని రోజుల తర్వాత మళ్ళీ ప్రయత్నించండి.",
+        "ai_header": "మీరు ఏమి చేయాలి",
+        "waiting": "పైన పొలం వివరాలు నమోదు చేసి సలహా పొందండి బటన్ నొక్కండి.",
+        "generating": "మీ సలహా తయారవుతోంది...",
+    },
+}
+
+LANG_NAMES_FOR_AI = {"en": "English", "hi": "Hindi", "te": "Telugu"}
+
+
+def T(lang_code, key):
+    return UI_TEXT.get(lang_code, UI_TEXT["en"]).get(key, UI_TEXT["en"].get(key, key))
+
+
 @st.cache_data(ttl=1800, show_spinner=False)
 def geocode_place(place_name):
     url = "https://api.openweathermap.org/geo/1.0/direct"
@@ -170,10 +291,12 @@ def ndvi_health_label(value):
     return "Dense, healthy vegetation"
 
 
+
 st.title("AgriSense")
 st.caption(
-    "Combines live weather, Sentinel-2 satellite vegetation data, and an AI advisory "
-    "engine to help a farmer decide what action to take on a specific field, today."
+    "AI-Powered Crop and Weather Advisory for Smallholder Farmers. Combines live weather, "
+    "Sentinel-2 satellite vegetation data, and an AI advisory engine to help a farmer decide "
+    "what action to take on a specific field, today."
 )
 
 missing_keys = [
@@ -191,6 +314,7 @@ if missing_keys:
     )
 
 st.divider()
+
 
 st.subheader("Field Details")
 
@@ -211,7 +335,6 @@ with input_col4:
 run = st.button("Get Recommendation", type="primary", use_container_width=False)
 
 st.divider()
-
 
 if run:
     if not place_name:
@@ -237,6 +360,7 @@ if run:
 
     weather_col, satellite_col = st.columns(2)
 
+    # ---------------- Weather ----------------
     with weather_col:
         st.subheader("Current Weather and Forecast")
         try:
@@ -313,7 +437,6 @@ if run:
             ndvi_summary = "Satellite NDVI data unavailable."
 
     st.divider()
-
 
     st.subheader("AI Decision Support")
     with st.spinner("Generating advisory..."):
