@@ -49,130 +49,180 @@ function evaluatePixel(sample) {
 }
 """
 
-CROPS = [
+# ---------------------------------------------------------------------------
+# Language setup
+# ---------------------------------------------------------------------------
+
+LANGUAGES = {
+    "English": "en",
+    "हिन्दी (Hindi)": "hi",
+    "తెలుగు (Telugu)": "te",
+}
+
+CROPS_EN = [
     "Rice", "Wheat", "Maize", "Cotton", "Sugarcane", "Groundnut",
     "Soybean", "Chilli", "Tomato", "Pulses", "Other",
 ]
 
-LANGUAGES = {
-    "English": "en",
-    "Hindi / हिंदी": "hi",
-    "Telugu / తెలుగు": "te",
+CROP_TRANSLATIONS = {
+    "en": CROPS_EN,
+    "hi": ["चावल", "गेहूं", "मक्का", "कपास", "गन्ना", "मूंगफली",
+           "सोयाबीन", "मिर्च", "टमाटर", "दालें", "अन्य"],
+    "te": ["వరి", "గోధుమ", "మొక్కజొన్న", "పత్తి", "చెరకు", "వేరుశనగ",
+           "సోయాబీన్", "మిర్చి", "టమాటో", "పప్పులు", "ఇతర"],
 }
 
+NDVI_LABELS = {
+    "en": ["Bare soil or stressed crop", "Sparse vegetation", "Moderate vegetation", "Dense, healthy vegetation"],
+    "hi": ["खाली या कमजोर फसल", "बहुत कम हरियाली", "ठीक-ठाक हरियाली", "घनी, स्वस्थ फसल"],
+    "te": ["నేల ఖాళీగా ఉంది లేదా పంట బలహీనంగా ఉంది", "తక్కువ పచ్చదనం", "మధ్యస్థ పచ్చదనం", "దట్టమైన, ఆరోగ్యకరమైన పంట"],
+}
 
-UI_TEXT = {
+AI_HEADINGS = {
+    "en": ["Irrigation", "Crop Health", "Risk Alerts", "Recommended Actions This Week"],
+    "hi": ["सिंचाई", "फसल स्वास्थ्य", "जोखिम चेतावनी", "इस सप्ताह के सुझाव"],
+    "te": ["నీటిపారుదల", "పంట ఆరోగ్యం", "ప్రమాద హెచ్చరికలు", "ఈ వారం సిఫారసు చర్యలు"],
+}
+
+LANGUAGE_NAME_FOR_PROMPT = {"en": "English", "hi": "Hindi", "te": "Telugu"}
+
+T = {
     "en": {
-        "caption": "AI-Powered Crop and Weather Advisory for Smallholder Farmers. Combines live weather, "
-                   "satellite crop health data, and an AI advisory engine to help a farmer decide "
-                   "what action to take on a specific field, today.",
-        "field_details": "Field Details",
         "language_label": "Language",
-        "place_label": "Village or town name",
-        "place_placeholder": "e.g. Warangal, Telangana",
+        "caption": "Combines live weather, satellite crop health data, and simple AI advice to help you decide what to do in your field today.",
+        "field_details_header": "Field Details",
+        "village_label": "Village or town name",
+        "village_placeholder": "e.g. Warangal, Telangana",
         "crop_label": "Crop",
-        "sowing_label": "Sowing date",
-        "size_label": "Field size (acres)",
+        "sowing_date_label": "Sowing date",
+        "field_size_label": "Field size (acres)",
         "button": "Get Recommendation",
-        "locating": "Locating field...",
-        "located": "Field located near {name} ({lat:.4f}, {lon:.4f})",
-        "location_error": "Enter a village or town name to continue.",
-        "location_not_found": "Location not found. Try a nearby larger town instead.",
+        "missing_keys_prefix": "Missing configuration: ",
+        "missing_keys_suffix": ". Add these as environment variables or in .streamlit/secrets.toml before running.",
+        "enter_village_error": "Enter a village or town name to continue.",
         "keys_error": "Cannot proceed until all API keys above are configured.",
+        "locating_spinner": "Locating field...",
+        "location_lookup_error": "Could not look up location: {e}",
+        "location_not_found": "Location not found. Try a nearby larger town instead.",
+        "field_located": "Field located near {name}",
         "weather_header": "Weather Today and Next Few Days",
-        "temp_label": "Temperature",
-        "feels_like": "feels like {v} C",
-        "humidity_label": "Humidity (how wet the air is)",
-        "wind_label": "Wind Speed",
+        "weather_help": "This tells you how hot, wet, or windy it will be, and how much rain to expect.",
+        "temp_label": "Temperature (how hot it feels)",
+        "feels_like": "feels like",
+        "humidity_label": "Humidity (moisture in the air)",
+        "wind_label": "Wind speed",
         "condition_label": "Sky condition",
-        "rain_last_hour": "Rain in the last hour",
-        "rain_next48": "Rain expected in the next 48 hours",
-        "forecast_expander": "See hour-by-hour forecast",
-        "satellite_header": "Crop Health From Satellite (NDVI)",
-        "ndvi_label": "Greenness Score (NDVI)",
-        "ndvi_status": "In simple terms",
-        "ndvi_history_expander": "See greenness score over the last month",
-        "no_satellite": "The satellite could not get a clear picture of this field in the last 30 days because "
-                         "of clouds. Try again in a few days.",
-        "ai_header": "What You Should Do",
-        "waiting": "Enter field details above and select Get Recommendation to generate an advisory.",
-        "generating": "Preparing your advisory...",
+        "rain_hour_label": "Rain in the last hour",
+        "rain_48h_label": "Rain expected in the next 2 days",
+        "detailed_forecast": "See hour-by-hour forecast",
+        "forecast_time": "Time",
+        "forecast_temp": "Temperature (C)",
+        "forecast_rain_chance": "Chance of rain (%)",
+        "forecast_rain_mm": "Rain amount (mm)",
+        "weather_unavailable": "Weather data unavailable: {e}",
+        "satellite_header": "Satellite Crop Health Check (NDVI)",
+        "ndvi_explainer": "NDVI is a score from 0 to 1 that the satellite gives your field based on how green and healthy the crop looks. A higher number is better.",
+        "latest_ndvi_label": "Latest crop health score",
+        "vegetation_status_label": "In simple terms",
+        "ndvi_history": "See health score over the last 30 days",
+        "no_ndvi_msg": "No clear satellite picture in the last 30 days (too many clouds). Try again in a few days.",
+        "satellite_unavailable": "Satellite data unavailable: {e}",
+        "ai_header": "Your Advisory",
+        "ai_spinner": "Preparing your advisory...",
+        "ai_unavailable": "AI advisory unavailable: {e}",
+        "initial_info": "Enter field details above and select Get Recommendation to generate an advisory.",
     },
     "hi": {
-        "caption": "छोटे किसानों के लिए एआई आधारित फसल और मौसम सलाह। मौसम, सैटेलाइट से फसल की सेहत, और एआई सलाह "
-                   "को मिलाकर बताता है कि आज खेत में क्या करना चाहिए।",
-        "field_details": "खेत की जानकारी",
         "language_label": "भाषा",
-        "place_label": "गांव या शहर का नाम",
-        "place_placeholder": "जैसे वारंगल, तेलंगाना",
+        "caption": "यह ऐप मौसम, उपग्रह से फसल की सेहत की जानकारी, और आसान भाषा में एआई सलाह देकर आपको आज खेत में क्या करना है, यह तय करने में मदद करता है।",
+        "field_details_header": "खेत की जानकारी",
+        "village_label": "गांव या कस्बे का नाम",
+        "village_placeholder": "जैसे: वारंगल, तेलंगाना",
         "crop_label": "फसल",
-        "sowing_label": "बुवाई की तारीख",
-        "size_label": "खेत का आकार (एकड़)",
+        "sowing_date_label": "बुवाई की तारीख",
+        "field_size_label": "खेत का आकार (एकड़)",
         "button": "सलाह पाएं",
-        "locating": "खेत की जगह ढूंढी जा रही है...",
-        "located": "खेत {name} के पास मिला ({lat:.4f}, {lon:.4f})",
-        "location_error": "आगे बढ़ने के लिए गांव या शहर का नाम लिखें।",
-        "location_not_found": "जगह नहीं मिली। पास के किसी बड़े शहर का नाम आज़माएं।",
-        "keys_error": "जब तक ऊपर दी गई सभी API कुंजियां सेट नहीं होतीं, यह आगे नहीं बढ़ सकता।",
+        "missing_keys_prefix": "कुछ सेटिंग्स गायब हैं: ",
+        "missing_keys_suffix": "। चलाने से पहले इन्हें environment variables या .streamlit/secrets.toml में जोड़ें।",
+        "enter_village_error": "आगे बढ़ने के लिए गांव या कस्बे का नाम लिखें।",
+        "keys_error": "जब तक ऊपर की सभी API keys सेट नहीं होतीं, तब तक आगे नहीं बढ़ सकते।",
+        "locating_spinner": "खेत की जगह ढूंढी जा रही है...",
+        "location_lookup_error": "जगह नहीं मिली: {e}",
+        "location_not_found": "यह जगह नहीं मिली। पास के किसी बड़े शहर का नाम आज़माएं।",
+        "field_located": "खेत {name} के पास मिला",
         "weather_header": "आज और अगले कुछ दिनों का मौसम",
-        "temp_label": "तापमान",
-        "feels_like": "महसूस होता है {v} C जैसा",
-        "humidity_label": "नमी (हवा में कितनी नमी है)",
-        "wind_label": "हवा की गति",
+        "weather_help": "इससे पता चलता है कि कितनी गर्मी, नमी या हवा रहेगी, और कितनी बारिश हो सकती है।",
+        "temp_label": "तापमान (कितनी गर्मी लगेगी)",
+        "feels_like": "महसूस होगा",
+        "humidity_label": "नमी (हवा में पानी की मात्रा)",
+        "wind_label": "हवा की रफ्तार",
         "condition_label": "आसमान की स्थिति",
-        "rain_last_hour": "पिछले एक घंटे में बारिश",
-        "rain_next48": "अगले 48 घंटों में बारिश की संभावना",
-        "forecast_expander": "घंटे-दर-घंटे मौसम देखें",
-        "satellite_header": "सैटेलाइट से फसल की सेहत (NDVI)",
-        "ndvi_label": "हरियाली स्कोर (NDVI)",
-        "ndvi_status": "सरल शब्दों में",
-        "ndvi_history_expander": "पिछले महीने का हरियाली स्कोर देखें",
-        "no_satellite": "बादलों की वजह से पिछले 30 दिनों में इस खेत की साफ सैटेलाइट तस्वीर नहीं मिली। कुछ दिनों बाद फिर कोशिश करें।",
-        "ai_header": "आपको क्या करना चाहिए",
-        "waiting": "ऊपर खेत की जानकारी भरें और सलाह पाएं बटन दबाएं।",
-        "generating": "आपकी सलाह तैयार की जा रही है...",
+        "rain_hour_label": "पिछले एक घंटे में बारिश",
+        "rain_48h_label": "अगले 2 दिनों में संभावित बारिश",
+        "detailed_forecast": "घंटे-दर-घंटे मौसम देखें",
+        "forecast_time": "समय",
+        "forecast_temp": "तापमान (C)",
+        "forecast_rain_chance": "बारिश की संभावना (%)",
+        "forecast_rain_mm": "बारिश की मात्रा (mm)",
+        "weather_unavailable": "मौसम की जानकारी उपलब्ध नहीं है: {e}",
+        "satellite_header": "उपग्रह से फसल की सेहत जांच (NDVI)",
+        "ndvi_explainer": "NDVI 0 से 1 के बीच एक अंक है जो उपग्रह आपके खेत की फसल कितनी हरी और स्वस्थ है, इसके आधार पर देता है। अंक जितना ज़्यादा, फसल उतनी अच्छी।",
+        "latest_ndvi_label": "फसल की ताज़ा सेहत स्कोर",
+        "vegetation_status_label": "आसान शब्दों में",
+        "ndvi_history": "पिछले 30 दिनों का सेहत स्कोर देखें",
+        "no_ndvi_msg": "पिछले 30 दिनों में साफ उपग्रह तस्वीर नहीं मिली (बादल ज़्यादा हैं)। कुछ दिनों बाद फिर कोशिश करें।",
+        "satellite_unavailable": "उपग्रह डेटा उपलब्ध नहीं है: {e}",
+        "ai_header": "आपकी सलाह",
+        "ai_spinner": "आपकी सलाह तैयार की जा रही है...",
+        "ai_unavailable": "एआई सलाह उपलब्ध नहीं है: {e}",
+        "initial_info": "ऊपर खेत की जानकारी भरें और 'सलाह पाएं' दबाएं।",
     },
     "te": {
-        "caption": "చిన్న రైతుల కోసం AI ఆధారిత పంట మరియు వాతావరణ సలహా. వాతావరణం, ఉపగ్రహం ద్వారా పంట ఆరోగ్యం, మరియు AI "
-                   "సలహాను కలిపి ఈరోజు పొలంలో ఏమి చేయాలో తెలియజేస్తుంది.",
-        "field_details": "పొలం వివరాలు",
         "language_label": "భాష",
-        "place_label": "గ్రామం లేదా పట్టణం పేరు",
-        "place_placeholder": "ఉదా. వరంగల్, తెలంగాణ",
+        "caption": "ఈ యాప్ వాతావరణం, ఉపగ్రహం ద్వారా పంట ఆరోగ్య సమాచారం, మరియు సులభమైన భాషలో AI సలహా ఇచ్చి, ఈరోజు మీ పొలంలో ఏమి చేయాలో నిర్ణయించుకోవడంలో సహాయపడుతుంది.",
+        "field_details_header": "పొలం వివరాలు",
+        "village_label": "గ్రామం లేదా పట్టణం పేరు",
+        "village_placeholder": "ఉదా: వరంగల్, తెలంగాణ",
         "crop_label": "పంట",
-        "sowing_label": "విత్తిన తేదీ",
-        "size_label": "పొలం విస్తీర్ణం (ఎకరాలు)",
+        "sowing_date_label": "విత్తిన తేదీ",
+        "field_size_label": "పొలం విస్తీర్ణం (ఎకరాలు)",
         "button": "సలహా పొందండి",
-        "locating": "పొలం స్థానం వెతుకుతోంది...",
-        "located": "పొలం {name} దగ్గర కనుగొనబడింది ({lat:.4f}, {lon:.4f})",
-        "location_error": "కొనసాగించడానికి గ్రామం లేదా పట్టణం పేరు నమోదు చేయండి.",
-        "location_not_found": "స్థానం కనుగొనబడలేదు. దగ్గరలోని పెద్ద పట్టణం పేరు ప్రయత్నించండి.",
-        "keys_error": "పైన ఉన్న అన్ని API కీలు సెట్ చేసే వరకు ఇది కొనసాగదు.",
+        "missing_keys_prefix": "కొన్ని సెట్టింగ్‌లు లేవు: ",
+        "missing_keys_suffix": ". నడపడానికి ముందు వీటిని environment variables లేదా .streamlit/secrets.toml లో చేర్చండి.",
+        "enter_village_error": "కొనసాగించడానికి గ్రామం లేదా పట్టణం పేరు నమోదు చేయండి.",
+        "keys_error": "పైన ఉన్న అన్ని API keys సెట్ చేసే వరకు కొనసాగించలేము.",
+        "locating_spinner": "పొలం స్థానం కనుగొంటోంది...",
+        "location_lookup_error": "స్థానం దొరకలేదు: {e}",
+        "location_not_found": "ఈ స్థానం దొరకలేదు. దగ్గరలోని పెద్ద పట్టణం పేరు ప్రయత్నించండి.",
+        "field_located": "పొలం {name} దగ్గర కనుగొనబడింది",
         "weather_header": "ఈరోజు మరియు రాబోయే కొద్ది రోజుల వాతావరణం",
-        "temp_label": "ఉష్ణోగ్రత",
-        "feels_like": "{v} C లా అనిపిస్తుంది",
-        "humidity_label": "తేమ (గాలిలో ఎంత తేమ ఉంది)",
+        "weather_help": "ఇది ఎంత వేడి, తేమ లేదా గాలి ఉంటుందో, మరియు ఎంత వర్షం పడవచ్చో తెలియజేస్తుంది.",
+        "temp_label": "ఉష్ణోగ్రత (ఎంత వేడిగా అనిపిస్తుంది)",
+        "feels_like": "అనిపిస్తుంది",
+        "humidity_label": "తేమ (గాలిలో నీటి శాతం)",
         "wind_label": "గాలి వేగం",
         "condition_label": "ఆకాశ పరిస్థితి",
-        "rain_last_hour": "గత గంటలో వర్షం",
-        "rain_next48": "వచ్చే 48 గంటల్లో వర్షం అవకాశం",
-        "forecast_expander": "గంట గంటకు వాతావరణం చూడండి",
-        "satellite_header": "ఉపగ్రహం ద్వారా పంట ఆరోగ్యం (NDVI)",
-        "ndvi_label": "పచ్చదనం స్కోరు (NDVI)",
-        "ndvi_status": "సరళంగా చెప్పాలంటే",
-        "ndvi_history_expander": "గత నెల పచ్చదనం స్కోరు చూడండి",
-        "no_satellite": "మేఘాల వల్ల గత 30 రోజుల్లో ఈ పొలం యొక్క స్పష్టమైన ఉపగ్రహ చిత్రం దొరకలేదు. కొన్ని రోజుల తర్వాత మళ్ళీ ప్రయత్నించండి.",
-        "ai_header": "మీరు ఏమి చేయాలి",
-        "waiting": "పైన పొలం వివరాలు నమోదు చేసి సలహా పొందండి బటన్ నొక్కండి.",
-        "generating": "మీ సలహా తయారవుతోంది...",
+        "rain_hour_label": "గత గంటలో వర్షం",
+        "rain_48h_label": "వచ్చే 2 రోజుల్లో వర్షం అవకాశం",
+        "detailed_forecast": "గంట గంటకూ వాతావరణం చూడండి",
+        "forecast_time": "సమయం",
+        "forecast_temp": "ఉష్ణోగ్రత (C)",
+        "forecast_rain_chance": "వర్షం అవకాశం (%)",
+        "forecast_rain_mm": "వర్షం మొత్తం (mm)",
+        "weather_unavailable": "వాతావరణ సమాచారం అందుబాటులో లేదు: {e}",
+        "satellite_header": "ఉపగ్రహం ద్వారా పంట ఆరోగ్య తనిఖీ (NDVI)",
+        "ndvi_explainer": "NDVI అనేది 0 నుండి 1 మధ్య ఉండే స్కోరు, మీ పొలంలో పంట ఎంత పచ్చగా, ఆరోగ్యంగా ఉందో బట్టి ఉపగ్రహం ఇస్తుంది. స్కోరు ఎక్కువగా ఉంటే పంట అంత మంచిది.",
+        "latest_ndvi_label": "పంట తాజా ఆరోగ్య స్కోరు",
+        "vegetation_status_label": "సులభమైన మాటల్లో",
+        "ndvi_history": "గత 30 రోజుల ఆరోగ్య స్కోరు చూడండి",
+        "no_ndvi_msg": "గత 30 రోజుల్లో స్పష్టమైన ఉపగ్రహ చిత్రం దొరకలేదు (మేఘాలు ఎక్కువగా ఉన్నాయి). కొన్ని రోజుల తర్వాత మళ్లీ ప్రయత్నించండి.",
+        "satellite_unavailable": "ఉపగ్రహ డేటా అందుబాటులో లేదు: {e}",
+        "ai_header": "మీ సలహా",
+        "ai_spinner": "మీ సలహా తయారవుతోంది...",
+        "ai_unavailable": "AI సలహా అందుబాటులో లేదు: {e}",
+        "initial_info": "పైన పొలం వివరాలు నమోదు చేసి, 'సలహా పొందండి' నొక్కండి.",
     },
 }
-
-LANG_NAMES_FOR_AI = {"en": "English", "hi": "Hindi", "te": "Telugu"}
-
-
-def T(lang_code, key):
-    return UI_TEXT.get(lang_code, UI_TEXT["en"]).get(key, UI_TEXT["en"].get(key, key))
 
 
 @st.cache_data(ttl=1800, show_spinner=False)
@@ -279,25 +329,29 @@ def call_openrouter(system_prompt, user_prompt):
     return r.json()["choices"][0]["message"]["content"]
 
 
-def ndvi_health_label(value):
+def ndvi_health_label(value, lang):
+    labels = NDVI_LABELS[lang]
     if value is None:
-        return "No data"
+        return "-"
     if value < 0.2:
-        return "Bare soil or stressed"
+        return labels[0]
     if value < 0.4:
-        return "Sparse vegetation"
+        return labels[1]
     if value < 0.6:
-        return "Moderate vegetation"
-    return "Dense, healthy vegetation"
+        return labels[2]
+    return labels[3]
 
 
+# ---------------------------------------------------------------------------
+# Language picker (drives everything below it)
+# ---------------------------------------------------------------------------
+
+lang_display = st.selectbox("Language / भाषा / భాష", list(LANGUAGES.keys()), index=0)
+lang = LANGUAGES[lang_display]
+t = T[lang]
 
 st.title("AgriSense")
-st.caption(
-    "AI-Powered Crop and Weather Advisory for Smallholder Farmers. Combines live weather, "
-    "Sentinel-2 satellite vegetation data, and an AI advisory engine to help a farmer decide "
-    "what action to take on a specific field, today."
-)
+st.caption(t["caption"])
 
 missing_keys = [
     name for name, val in [
@@ -308,61 +362,60 @@ missing_keys = [
     ] if not val
 ]
 if missing_keys:
-    st.warning(
-        "Missing configuration: " + ", ".join(missing_keys) +
-        ". Add these as environment variables or in .streamlit/secrets.toml before running."
-    )
+    st.warning(t["missing_keys_prefix"] + ", ".join(missing_keys) + t["missing_keys_suffix"])
 
 st.divider()
 
-
-st.subheader("Field Details")
+st.subheader(t["field_details_header"])
 
 input_col1, input_col2, input_col3, input_col4 = st.columns([2, 1, 1, 1])
 
 with input_col1:
-    place_name = st.text_input("Village or town name", placeholder="e.g. Warangal, Telangana")
+    place_name = st.text_input(t["village_label"], placeholder=t["village_placeholder"])
 
 with input_col2:
-    crop = st.selectbox("Crop", CROPS)
+    crop_display_list = CROP_TRANSLATIONS[lang]
+    crop_choice_display = st.selectbox(t["crop_label"], crop_display_list)
+    crop = CROPS_EN[crop_display_list.index(crop_choice_display)]  # canonical English name for the AI prompt
 
 with input_col3:
-    sowing_date = st.date_input("Sowing date", value=date.today() - timedelta(days=30))
+    sowing_date = st.date_input(t["sowing_date_label"], value=date.today() - timedelta(days=30))
 
 with input_col4:
-    field_size = st.number_input("Field size (acres)", min_value=0.1, value=1.0, step=0.1)
+    field_size = st.number_input(t["field_size_label"], min_value=0.1, value=1.0, step=0.1)
 
-run = st.button("Get Recommendation", type="primary", use_container_width=False)
+run = st.button(t["button"], type="primary", use_container_width=False)
 
 st.divider()
 
+
 if run:
     if not place_name:
-        st.error("Enter a village or town name to continue.")
+        st.error(t["enter_village_error"])
         st.stop()
     if missing_keys:
-        st.error("Cannot proceed until all API keys above are configured.")
+        st.error(t["keys_error"])
         st.stop()
 
-    with st.spinner("Locating field..."):
+    with st.spinner(t["locating_spinner"]):
         try:
             location = geocode_place(place_name)
         except Exception as e:
-            st.error(f"Could not look up location: {e}")
+            st.error(t["location_lookup_error"].format(e=e))
             st.stop()
 
     if not location:
-        st.error("Location not found. Try a nearby larger town instead.")
+        st.error(t["location_not_found"])
         st.stop()
 
     lat, lon = location["lat"], location["lon"]
-    st.success(f"Field located near {location['name']} ({lat:.4f}, {lon:.4f})")
+    st.success(t["field_located"].format(name=location["name"]) + f" ({lat:.4f}, {lon:.4f})")
 
     weather_col, satellite_col = st.columns(2)
 
-    # ---------------- Weather ----------------
     with weather_col:
-        st.subheader("Current Weather and Forecast")
+        st.subheader(t["weather_header"])
+        st.caption(t["weather_help"])
         try:
             current, forecast = fetch_weather(lat, lon)
             temp = current["main"]["temp"]
@@ -373,12 +426,12 @@ if run:
             rain_now = current.get("rain", {}).get("1h", 0)
 
             m1, m2, m3 = st.columns(3)
-            m1.metric("Temperature", f"{temp:.1f} C", f"feels {feels_like:.1f} C")
-            m2.metric("Humidity", f"{humidity}%")
-            m3.metric("Wind", f"{wind} m/s")
-            st.write(f"Condition: {condition}")
+            m1.metric(t["temp_label"], f"{temp:.1f} C", f"{t['feels_like']} {feels_like:.1f} C")
+            m2.metric(t["humidity_label"], f"{humidity}%")
+            m3.metric(t["wind_label"], f"{wind} m/s")
+            st.write(f"{t['condition_label']}: {condition}")
             if rain_now:
-                st.write(f"Rain in last hour: {rain_now} mm")
+                st.write(f"{t['rain_hour_label']}: {rain_now} mm")
 
             rain_total_72h = 0.0
             daily_rows = []
@@ -389,15 +442,15 @@ if run:
                 rain_total_72h += rain_3h
                 daily_rows.append(
                     {
-                        "time": dt_txt,
-                        "temp_C": round(entry["main"]["temp"], 1),
-                        "rain_chance_%": round(pop, 0),
-                        "rain_mm": rain_3h,
+                        t["forecast_time"]: dt_txt,
+                        t["forecast_temp"]: round(entry["main"]["temp"], 1),
+                        t["forecast_rain_chance"]: round(pop, 0),
+                        t["forecast_rain_mm"]: rain_3h,
                     }
                 )
 
-            st.write(f"Expected rainfall, next 48 hours: {rain_total_72h:.1f} mm")
-            with st.expander("Detailed forecast (3-hour steps)"):
+            st.write(f"{t['rain_48h_label']}: {rain_total_72h:.1f} mm")
+            with st.expander(t["detailed_forecast"]):
                 st.dataframe(daily_rows, use_container_width=True, hide_index=True)
 
             weather_summary = (
@@ -405,11 +458,12 @@ if run:
                 f"Expected rainfall next 48h: {rain_total_72h:.1f} mm."
             )
         except Exception as e:
-            st.error(f"Weather data unavailable: {e}")
+            st.error(t["weather_unavailable"].format(e=e))
             weather_summary = "Weather data unavailable."
 
     with satellite_col:
-        st.subheader("Satellite Vegetation Health (NDVI)")
+        st.subheader(t["satellite_header"])
+        st.caption(t["ndvi_explainer"])
         try:
             token = get_cdse_token()
             stats = fetch_ndvi(lat, lon, token)
@@ -417,34 +471,41 @@ if run:
 
             if series:
                 latest = series[-1]["mean_ndvi"]
-                st.metric("Latest NDVI (10-day mean)", latest)
-                st.write(f"Vegetation status: {ndvi_health_label(latest)}")
+                st.metric(t["latest_ndvi_label"], latest)
+                st.write(f"{t['vegetation_status_label']}: {ndvi_health_label(latest, lang)}")
                 st.line_chart(
                     {row["date"]: row["mean_ndvi"] for row in series},
                 )
-                with st.expander("NDVI history"):
+                with st.expander(t["ndvi_history"]):
                     st.dataframe(series, use_container_width=True, hide_index=True)
                 ndvi_summary = (
-                    f"Latest 10-day mean NDVI is {latest} ({ndvi_health_label(latest)}). "
+                    f"Latest 10-day mean NDVI is {latest} ({ndvi_health_label(latest, 'en')}). "
                     f"Trend over the observed period: "
                     + ", ".join(f"{r['date']}: {r['mean_ndvi']}" for r in series)
                 )
             else:
-                st.info("No cloud-free Sentinel-2 scenes found in the last 30 days for this field.")
+                st.info(t["no_ndvi_msg"])
                 ndvi_summary = "No usable satellite NDVI reading available for the last 30 days (cloud cover)."
         except Exception as e:
-            st.error(f"Satellite data unavailable: {e}")
+            st.error(t["satellite_unavailable"].format(e=e))
             ndvi_summary = "Satellite NDVI data unavailable."
 
     st.divider()
 
-    st.subheader("AI Decision Support")
-    with st.spinner("Generating advisory..."):
+    st.subheader(t["ai_header"])
+    with st.spinner(t["ai_spinner"]):
+        headings = AI_HEADINGS[lang]
+        language_name = LANGUAGE_NAME_FOR_PROMPT[lang]
         system_prompt = (
-            "You are an agronomy decision support assistant for smallholder farmers in India. "
-            "Give short, practical, locally actionable advice. Avoid vague statements. "
-            "Structure your answer under these exact headings: Irrigation, Crop Health, Risk Alerts, "
-            "Recommended Actions This Week. Keep the whole answer under 220 words. Do not use emojis."
+            f"You are an agronomy decision support assistant for smallholder farmers in India. "
+            f"Respond entirely in {language_name}, using simple, everyday words a farmer with no "
+            f"technical background can understand. Whenever you mention a number (temperature, "
+            f"rainfall, NDVI score, days, etc.), keep the exact number but add a short plain-language "
+            f"explanation of what it means for the farmer right next to it - do not drop the numbers. "
+            f"Give short, practical, locally actionable advice. Avoid vague statements and avoid jargon. "
+            f"Structure your answer under these exact headings, in this order and in {language_name}: "
+            f"{headings[0]}, {headings[1]}, {headings[2]}, {headings[3]}. "
+            f"Keep the whole answer under 220 words. Do not use emojis."
         )
         user_prompt = (
             f"Crop: {crop}\n"
@@ -459,7 +520,7 @@ if run:
             advisory = call_openrouter(system_prompt, user_prompt)
             st.markdown(advisory)
         except Exception as e:
-            st.error(f"AI advisory unavailable: {e}")
+            st.error(t["ai_unavailable"].format(e=e))
 
 else:
-    st.info("Enter field details above and select Get Recommendation to generate an advisory.")
+    st.info(t["initial_info"])
