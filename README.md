@@ -1,4 +1,4 @@
-# Farmer Decision Support Platform
+# AgriSense — AI-Powered Crop and Weather Advisory for Smallholder Farmers
 
 A single-page Streamlit app that gives a farmer a same-day decision briefing for a
 specific field by combining live weather, Sentinel-2 satellite vegetation data
@@ -40,7 +40,7 @@ streamlit run app.py
 2. On https://share.streamlit.io, create a new app pointing at `app.py`.
 3. In the app's Settings > Secrets, paste the same four keys shown above
    (do not commit `secrets.toml` itself).
-4. Deploy. The app has no sidebar; all controls sit at the top of the page.
+4. Deploy. 
 
 ## Notes
 
