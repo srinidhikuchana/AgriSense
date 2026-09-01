@@ -7,7 +7,7 @@ import streamlit as st
 
 
 st.set_page_config(
-    page_title="Farmer Decision Support Platform",
+    page_title="AgriSense",
     page_icon=None,
     layout="wide",
     initial_sidebar_state="collapsed",
