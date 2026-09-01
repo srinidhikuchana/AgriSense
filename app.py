@@ -170,7 +170,7 @@ def ndvi_health_label(value):
     return "Dense, healthy vegetation"
 
 
-st.title("Farmer Decision Support Platform")
+st.title("AgriSense")
 st.caption(
     "Combines live weather, Sentinel-2 satellite vegetation data, and an AI advisory "
     "engine to help a farmer decide what action to take on a specific field, today."
