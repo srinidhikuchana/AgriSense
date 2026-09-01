@@ -5,9 +5,6 @@ from datetime import date, timedelta
 import requests
 import streamlit as st
 
-# ---------------------------------------------------------------------------
-# Configuration
-# ---------------------------------------------------------------------------
 
 st.set_page_config(
     page_title="Farmer Decision Support Platform",
@@ -56,10 +53,6 @@ CROPS = [
     "Rice", "Wheat", "Maize", "Cotton", "Sugarcane", "Groundnut",
     "Soybean", "Chilli", "Tomato", "Pulses", "Other",
 ]
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
 
 @st.cache_data(ttl=1800, show_spinner=False)
 def geocode_place(place_name):
@@ -177,10 +170,6 @@ def ndvi_health_label(value):
     return "Dense, healthy vegetation"
 
 
-# ---------------------------------------------------------------------------
-# Header
-# ---------------------------------------------------------------------------
-
 st.title("Farmer Decision Support Platform")
 st.caption(
     "Combines live weather, Sentinel-2 satellite vegetation data, and an AI advisory "
@@ -203,10 +192,6 @@ if missing_keys:
 
 st.divider()
 
-# ---------------------------------------------------------------------------
-# Field input (top of page, no sidebar)
-# ---------------------------------------------------------------------------
-
 st.subheader("Field Details")
 
 input_col1, input_col2, input_col3, input_col4 = st.columns([2, 1, 1, 1])
@@ -227,9 +212,6 @@ run = st.button("Get Recommendation", type="primary", use_container_width=False)
 
 st.divider()
 
-# ---------------------------------------------------------------------------
-# Main flow
-# ---------------------------------------------------------------------------
 
 if run:
     if not place_name:
@@ -255,7 +237,6 @@ if run:
 
     weather_col, satellite_col = st.columns(2)
 
-    # ---------------- Weather ----------------
     with weather_col:
         st.subheader("Current Weather and Forecast")
         try:
@@ -303,7 +284,6 @@ if run:
             st.error(f"Weather data unavailable: {e}")
             weather_summary = "Weather data unavailable."
 
-    # ---------------- Satellite / NDVI ----------------
     with satellite_col:
         st.subheader("Satellite Vegetation Health (NDVI)")
         try:
@@ -334,7 +314,7 @@ if run:
 
     st.divider()
 
-    # ---------------- AI Advisory ----------------
+
     st.subheader("AI Decision Support")
     with st.spinner("Generating advisory..."):
         system_prompt = (
