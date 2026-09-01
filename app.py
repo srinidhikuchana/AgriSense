@@ -36,7 +36,7 @@ function setup() {
   return {
     input: [{ bands: ["B04", "B08", "SCL", "dataMask"] }],
     output: [
-      { id: "ndvi", bands: 1 },
+      { id: "ndvi", bands: 1, sampleType: "FLOAT32" },
       { id: "dataMask", bands: 1 }
     ]
   };
@@ -291,6 +291,13 @@ def fetch_ndvi(lat, lon, token, days_back=30, buffer_deg=0.01):
             "evalscript": NDVI_EVALSCRIPT,
             "resx": 10,
             "resy": 10,
+        },
+        "calculations": {
+            "default": {
+                "statistics": {
+                    "default": {}
+                }
+            }
         },
     }
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
